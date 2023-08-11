@@ -1,6 +1,6 @@
 spring:
   application:
-    name: service-b
+    name: app-c
 
 server:
-  port: 9092
+  port: 9093

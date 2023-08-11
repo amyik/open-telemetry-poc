@@ -16,9 +16,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>service-a</module>
-        <module>service-b</module>
-        <module>service-c</module>
+        <module>app-a</module>
+        <module>app-b</module>
+        <module>app-c</module>
     </modules>
 
     <build>

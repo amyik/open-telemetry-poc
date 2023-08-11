@@ -7,11 +7,11 @@
         <artifactId>open-telemetry-poc</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>service-c</artifactId>
+    <artifactId>app-a</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>service-c</name>
-    <description>service-c</description>
+    <name>app-a</name>
+    <description>app-a</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
