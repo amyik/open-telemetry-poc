@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-c
+  labels:
+    app: app-c
+spec:
+  type: ClusterIP
+  selector:
+    app: app-c
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-c
+  labels:
+    app: app-c
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-c
+  template:
+    metadata:
+      labels:
+        app: app-c
+    spec:
+      containers:
+      - name: app-c
+        image: app-c
+        ports:
+        - containerPort: 8080
+        env:
+        - name: spring.application.name
+          value: app-c
+        - name: server.port
+          value: "8080"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 400m
+            memory: 400Mi

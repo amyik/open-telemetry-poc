@@ -11,7 +11,12 @@ public class HelloController {
   private String serviceName;
 
   @GetMapping("say-hello")
-  String sayHello() {
+  String sayHello1() {
+    return "Hello I am " + serviceName;
+  }
+
+  @GetMapping("app-c/say-hello")
+  String sayHello2() {
     return "Hello I am " + serviceName;
   }
 }

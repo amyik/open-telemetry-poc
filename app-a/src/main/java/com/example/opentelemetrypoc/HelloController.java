@@ -10,8 +10,20 @@ public class HelloController {
   @Value("${spring.application.name:not-set}")
   private String serviceName;
 
+  private String tmp;
+
+  @GetMapping("/")
+  String sayHello0() {
+    return "Hello I am " + serviceName;
+  }
+
   @GetMapping("say-hello")
-  String sayHello() {
+  String sayHello1() {
+    return "Hello I am " + serviceName;
+  }
+
+  @GetMapping("app-a/say-hello")
+  String sayHello2() {
     return "Hello I am " + serviceName;
   }
 }

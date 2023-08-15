@@ -1,0 +1,33 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: open-telemetry-poc
+build:
+  insecureRegistries:
+    - 172.30.1.92
+    - 70.30.174.97
+    - registry.insecure.io:5000
+  artifacts:
+    - image: app-a
+      jib:
+        project: app-a
+    - image: app-b
+      jib:
+       project: app-b
+    - image: app-c
+      jib:
+       project: app-c
+#        fromImage: tomcat:8.5.82-jdk8-openjdk-slim-buster
+manifests:
+  rawYaml:
+    - k8s/**.yaml
+#deploy:
+#  kubectl:
+#    mani
+
+#portForward:
+#  - resourceType: deployment
+#    resourceName: ingress-nginx-controller
+#    namespace: ingress-nginx
+#    port: 8080
+#    localPort: 80
