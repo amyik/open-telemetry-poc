@@ -45,6 +45,14 @@
                         <container>
                             <appRoot>/usr/local/tomcat/webapps/ROOT</appRoot>
                         </container>
+                        <extraDirectories>
+                            <paths>
+                                <path>
+                                    <from>lib</from>
+                                    <into>/usr/local/tomcat/lib</into>
+                                </path>
+                            </paths>
+                        </extraDirectories>
                     </configuration>
                 </plugin>
             </plugins>
