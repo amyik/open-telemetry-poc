@@ -42,14 +42,27 @@ spec:
           value: "8080"
         - name: JAVA_TOOL_OPTIONS
           value: "-javaagent:/usr/local/tomcat/lib/opentelemetry-javaagent.jar"
+        - name: OTEL_JAVAAGENT_ENABLED
+          value: "true"
+        - name: OTEL_SDK_DISABLED
+          value: "false"
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: "grpc"
+        - name: OTEL_SERVICE_NAME
+          value: "app-a"
+        - name: OTEL_TRACES_EXPORTER
+          value: none # otlp or none or logging
+        - name: OTEL_LOGS_EXPORTER
+          value: otlp # otlp or none or logging
+        - name: OTEL_METRICS_EXPORTER
+          value: none # otlp or none or logging
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+#        - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
+#          value: "http://otel-collector:4317"
         - name: OTEL_JAVAAGENT_LOGGING
           value: application
-        - name: OTEL_TRACES_EXPORTER
-          value: logging
-        - name: OTEL_METRICS_EXPORTER
-          value: none
-        - name: OTEL_LOGS_EXPORTER
-          value: logging
+
         resources:
           requests:
             cpu: 200m
