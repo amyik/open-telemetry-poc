@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: otel-collector-conf
+  name: otel-collector-config
   labels:
     app: opentelemetry
-    component: otel-collector-conf
+    component: otel-collector-config
 data:
-  otel-collector-config: |
+  config.yaml: |
     receivers:
       otlp:
         protocols:
@@ -16,6 +16,11 @@ data:
           http:
             endpoint: ${env:MY_POD_IP}:4318
     processors:
+      resource:
+        attributes:
+          - action: insert
+            key: loki.resource.labels
+            value: service.name
       batch:
       memory_limiter:
         # 80% of maximum memory up to 2G
@@ -36,13 +41,20 @@ data:
       file:
         path: ./test.log
       logging:
+        verbosity: detailed
+      loki:
+        endpoint: http://loki:3100/loki/api/v1/push
+        default_labels_enabled:
+          exporter: false
+          job: true
     service:
-      extensions: [zpages, memory_ballast]
+    #  extensions: [zpages, memory_ballast]
       pipelines:
           logs:
             receivers: [otlp]
-            processors: []
-            exporters: [logging]
+            processors: [resource]
+            exporters: [loki]
+    #        exporters: [logging, loki]
 #        traces/1:
 #          receivers: [otlp]
 #          processors: [memory_limiter, batch]
@@ -92,18 +104,26 @@ spec:
         component: otel-collector
     spec:
       containers:
-        - command:
-            - "/otelcol"
-            - "--config=/conf/otel-collector-config.yaml"
-          image: otel/opentelemetry-collector:0.84.0
-          name: otel-collector
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.84.0
           resources:
             limits:
-              cpu: 1
-              memory: 1Gi
+              cpu: 200m
+              memory: 200Mi
             requests:
               cpu: 200m
-              memory: 400Mi
+              memory: 200Mi
+          volumeMounts:
+            - mountPath: /var/log
+              name: varlog
+              readOnly: true
+            - mountPath: /var/lib/docker/containers
+              name: varlibdockercontainers
+              readOnly: true
+            - mountPath: /etc/otelcol-contrib/config.yaml
+              name: data
+              subPath: config.yaml
+              readOnly: true
           ports:
             - containerPort: 55679 # Default endpoint for ZPages.
             - containerPort: 4317 # Default endpoint for OpenTelemetry receiver.
@@ -117,22 +137,15 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: status.podIP
-          volumeMounts:
-            - name: otel-collector-config-vol
-              mountPath: /conf
-      #        - name: otel-collector-secrets
-      #          mountPath: /secrets
+      terminationGracePeriodSeconds: 0
       volumes:
-        - configMap:
-            name: otel-collector-conf
-            items:
-              - key: otel-collector-config
-                path: otel-collector-config.yaml
-          name: otel-collector-config-vol
-#        - secret:
-#            name: otel-collector-secrets
-#            items:
-#              - key: cert.pem
-#                path: cert.pem
-#              - key: key.pem
-#                path: key.pem
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: data
+          configMap:
+            name: otel-collector-config
+
