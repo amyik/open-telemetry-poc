@@ -58,11 +58,8 @@ spec:
           value: none # otlp or none or logging
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
-#        - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
-#          value: "http://otel-collector:4317"
         - name: OTEL_JAVAAGENT_LOGGING
           value: application
-
         resources:
           requests:
             cpu: 200m
