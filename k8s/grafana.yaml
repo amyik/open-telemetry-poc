@@ -85,6 +85,7 @@ spec:
               name: grafana-pv
             - mountPath: /etc/grafana/provisioning/datasources/ds.yaml
               name: data-source
+              subPath: ds.yaml
       volumes:
         - name: grafana-pv
 #          persistentVolumeClaim:
