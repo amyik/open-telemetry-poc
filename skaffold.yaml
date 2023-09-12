@@ -21,6 +21,16 @@ build:
 manifests:
   rawYaml:
     - k8s/**.yaml
+
+#deploy:
+#  helm:
+#    releases:
+#      - name: loki
+#        repo: https://grafana.github.io/helm-charts
+#        remoteChart: loki
+#        valuesFiles: [helmValuesFiles/lokiValues.yaml]
+#        skipTests: true
+
 #deploy:
 #  kubectl:
 #    mani
