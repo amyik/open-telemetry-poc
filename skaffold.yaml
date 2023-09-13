@@ -13,14 +13,14 @@ build:
         project: app-a
     - image: app-b
       jib:
-       project: app-b
+        project: app-b
     - image: app-c
       jib:
-       project: app-c
+        project: app-c
 #        fromImage: tomcat:8.5.82-jdk8-openjdk-slim-buster
 manifests:
   rawYaml:
-    - k8s/**.yaml
+    - k8s/**
 
 #deploy:
 #  helm:
