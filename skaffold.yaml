@@ -20,7 +20,9 @@ build:
 #        fromImage: tomcat:8.5.82-jdk8-openjdk-slim-buster
 manifests:
   rawYaml:
-    - k8s/**
+    - raw-yaml/jaeger-operator.yaml
+    - raw-yaml/jaeger.yaml
+    - raw-yaml/**
 
 #deploy:
 #  helm:
