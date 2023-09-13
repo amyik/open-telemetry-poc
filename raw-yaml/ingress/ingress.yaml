@@ -66,6 +66,7 @@ kind: Ingress
 metadata:
   name: rewrite-ingress
   annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
@@ -73,7 +74,7 @@ spec:
     - http:
         paths:
           - path: /jaeger-query(/|$)(.*)
-            pathType: ImplementationSpecific
+            pathType: Prefix
             backend:
               service:
                 name: jaeger-simple-query
