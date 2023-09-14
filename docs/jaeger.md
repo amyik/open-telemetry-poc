@@ -1,4 +1,22 @@
 
+## helm으로 jaeger설치
+```bash
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm install \
+jaeger jaegertracing/jaeger \
+--set provisionDataStore.cassandra=false \
+--set provisionDataStore.elasticsearch=false \
+--set provisionDataStore.kafka=false \
+--set allInOne.enabled=true \
+--set ingester.enabled=false \
+--set agent.enabled=false \
+--set collector.enabled=false \
+--set query.enabled=false
+
+```
+
+
+
 ## jaeger설치 전 cert manager 설치가 필요하다.
 https://cert-manager.io/docs/installation/helm/
 

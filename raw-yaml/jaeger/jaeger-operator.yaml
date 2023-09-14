@@ -15415,21 +15415,21 @@ spec:
   selector:
     name: jaeger-operator
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: jaeger-operator
-  name: jaeger-operator-webhook-service
-  namespace: observability
-spec:
-  ports:
-  - port: 443
-    protocol: TCP
-    targetPort: 9443
-  selector:
-    name: jaeger-operator
----
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  labels:
+#    name: jaeger-operator
+#  name: jaeger-operator-webhook-service
+#  namespace: observability
+#spec:
+#  ports:
+#  - port: 443
+#    protocol: TCP
+#    targetPort: 9443
+#  selector:
+#    name: jaeger-operator
+#---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15524,117 +15524,117 @@ spec:
           defaultMode: 420
           secretName: jaeger-operator-service-cert
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  labels:
-    name: jaeger-operator
-  name: jaeger-operator-serving-cert
-  namespace: observability
-spec:
-  dnsNames:
-  - jaeger-operator-webhook-service.observability.svc
-  - jaeger-operator-webhook-service.observability.svc.cluster.local
-  issuerRef:
-    kind: Issuer
-    name: jaeger-operator-selfsigned-issuer
-  secretName: jaeger-operator-service-cert
-  subject:
-    organizationalUnits:
-    - jaeger-operator
----
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  labels:
-    name: jaeger-operator
-  name: jaeger-operator-selfsigned-issuer
-  namespace: observability
-spec:
-  selfSigned: {}
----
-apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
-metadata:
-  annotations:
-    cert-manager.io/inject-ca-from: observability/jaeger-operator-serving-cert
-  labels:
-    name: jaeger-operator
-  name: jaeger-operator-mutating-webhook-configuration
-webhooks:
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: jaeger-operator-webhook-service
-      namespace: observability
-      path: /mutate-v1-deployment
-  failurePolicy: Ignore
-  name: deployment.sidecar-injector.jaegertracing.io
-  objectSelector:
-    matchExpressions:
-    - key: name
-      operator: NotIn
-      values:
-      - jaeger-operator
-  rules:
-  - apiGroups:
-    - apps
-    apiVersions:
-    - v1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - deployments
-  sideEffects: None
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: jaeger-operator-webhook-service
-      namespace: observability
-      path: /mutate-jaegertracing-io-v1-jaeger
-  failurePolicy: Fail
-  name: mjaeger.kb.io
-  rules:
-  - apiGroups:
-    - jaegertracing.io
-    apiVersions:
-    - v1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - jaegers
-  sideEffects: None
----
-apiVersion: admissionregistration.k8s.io/v1
-kind: ValidatingWebhookConfiguration
-metadata:
-  annotations:
-    cert-manager.io/inject-ca-from: observability/jaeger-operator-serving-cert
-  labels:
-    name: jaeger-operator
-  name: jaeger-operator-validating-webhook-configuration
-webhooks:
-- admissionReviewVersions:
-  - v1
-  clientConfig:
-    service:
-      name: jaeger-operator-webhook-service
-      namespace: observability
-      path: /validate-jaegertracing-io-v1-jaeger
-  failurePolicy: Fail
-  name: vjaeger.kb.io
-  rules:
-  - apiGroups:
-    - jaegertracing.io
-    apiVersions:
-    - v1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - jaegers
-  sideEffects: None
+#apiVersion: cert-manager.io/v1
+#kind: Certificate
+#metadata:
+#  labels:
+#    name: jaeger-operator
+#  name: jaeger-operator-serving-cert
+#  namespace: observability
+#spec:
+#  dnsNames:
+#  - jaeger-operator-webhook-service.observability.svc
+#  - jaeger-operator-webhook-service.observability.svc.cluster.local
+#  issuerRef:
+#    kind: Issuer
+#    name: jaeger-operator-selfsigned-issuer
+#  secretName: jaeger-operator-service-cert
+#  subject:
+#    organizationalUnits:
+#    - jaeger-operator
+#---
+#apiVersion: cert-manager.io/v1
+#kind: Issuer
+#metadata:
+#  labels:
+#    name: jaeger-operator
+#  name: jaeger-operator-selfsigned-issuer
+#  namespace: observability
+#spec:
+#  selfSigned: {}
+#---
+#apiVersion: admissionregistration.k8s.io/v1
+#kind: MutatingWebhookConfiguration
+#metadata:
+#  annotations:
+#    cert-manager.io/inject-ca-from: observability/jaeger-operator-serving-cert
+#  labels:
+#    name: jaeger-operator
+#  name: jaeger-operator-mutating-webhook-configuration
+#webhooks:
+#- admissionReviewVersions:
+#  - v1
+#  clientConfig:
+#    service:
+#      name: jaeger-operator-webhook-service
+#      namespace: observability
+#      path: /mutate-v1-deployment
+#  failurePolicy: Ignore
+#  name: deployment.sidecar-injector.jaegertracing.io
+#  objectSelector:
+#    matchExpressions:
+#    - key: name
+#      operator: NotIn
+#      values:
+#      - jaeger-operator
+#  rules:
+#  - apiGroups:
+#    - apps
+#    apiVersions:
+#    - v1
+#    operations:
+#    - CREATE
+#    - UPDATE
+#    resources:
+#    - deployments
+#  sideEffects: None
+#- admissionReviewVersions:
+#  - v1
+#  clientConfig:
+#    service:
+#      name: jaeger-operator-webhook-service
+#      namespace: observability
+#      path: /mutate-jaegertracing-io-v1-jaeger
+#  failurePolicy: Fail
+#  name: mjaeger.kb.io
+#  rules:
+#  - apiGroups:
+#    - jaegertracing.io
+#    apiVersions:
+#    - v1
+#    operations:
+#    - CREATE
+#    - UPDATE
+#    resources:
+#    - jaegers
+#  sideEffects: None
+#---
+#apiVersion: admissionregistration.k8s.io/v1
+#kind: ValidatingWebhookConfiguration
+#metadata:
+#  annotations:
+#    cert-manager.io/inject-ca-from: observability/jaeger-operator-serving-cert
+#  labels:
+#    name: jaeger-operator
+#  name: jaeger-operator-validating-webhook-configuration
+#webhooks:
+#- admissionReviewVersions:
+#  - v1
+#  clientConfig:
+#    service:
+#      name: jaeger-operator-webhook-service
+#      namespace: observability
+#      path: /validate-jaegertracing-io-v1-jaeger
+#  failurePolicy: Fail
+#  name: vjaeger.kb.io
+#  rules:
+#  - apiGroups:
+#    - jaegertracing.io
+#    apiVersions:
+#    - v1
+#    operations:
+#    - CREATE
+#    - UPDATE
+#    resources:
+#    - jaegers
+#  sideEffects: None

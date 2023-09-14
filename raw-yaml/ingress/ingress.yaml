@@ -1,4 +1,4 @@
-## 외부 노출을 위한 NodePort Service
+# 외부 노출을 위한 NodePort Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -60,7 +60,7 @@ spec:
                 port:
                   number: 80
 ---
-### https://kubernetes.github.io/ingress-nginx/examples/rewrite/#rewrite
+# https://kubernetes.github.io/ingress-nginx/examples/rewrite/#rewrite
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -77,11 +77,11 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: jaeger-simple-query
+                name: jaeger-query
                 port:
                   number: 16686
 ---
-## 테스트용 NodePort Service
+# 테스트용 NodePort Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -89,12 +89,12 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: jaeger
-    app.kubernetes.io/instance: jaeger-simple
     app.kubernetes.io/component: all-in-one
+    app.kubernetes.io/instance: jaeger
+    app.kubernetes.io/name: jaeger
   ports:
     - port: 16686
       targetPort: 16686
       nodePort: 30009 #(default: 30000-32767)
 
----
+#---

@@ -47,6 +47,11 @@ data:
         default_labels_enabled:
           exporter: false
           job: true
+     # jaeger-otel:
+     #   endpoint: http://jaeger-collector:4317
+     #   default_labels_enabled:
+     #     exporter: false
+     #     job: true
     service:
     #  extensions: [zpages, memory_ballast]
       pipelines:
@@ -54,6 +59,10 @@ data:
             receivers: [otlp]
             processors: [resource]
             exporters: [loki]
+      #    jaeger-otel:
+      #      receivers: [otlp]
+      #      processors: [resource]
+      #      exporters: [jaeger]
     #        exporters: [logging, loki]
 #        traces/1:
 #          receivers: [otlp]

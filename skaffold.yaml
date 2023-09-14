@@ -17,24 +17,31 @@ build:
     - image: app-c
       jib:
         project: app-c
-#        fromImage: tomcat:8.5.82-jdk8-openjdk-slim-buster
 manifests:
   rawYaml:
-    - raw-yaml/jaeger/jaeger-operator.yaml
-    - raw-yaml/jaeger/jaeger.yaml
-    - raw-yaml/grafana-family/*
+    - raw-yaml/ingress/*.yaml
+#    - raw-yaml/jaeger/jaeger-operator.yaml
+#    - raw-yaml/jaeger/jaeger.yaml
+#    - raw-yaml/grafana-family/*
     - raw-yaml/otel/*
-#    - raw-yaml/demo-apps/**
-    - raw-yaml/ingress/**
+    - raw-yaml/demo-apps/*.yaml
 
-#deploy:
-#  helm:
-#    releases:
-#      - name: loki
-#        repo: https://grafana.github.io/helm-charts
-#        remoteChart: loki
-#        valuesFiles: [helmValuesFiles/lokiValues.yaml]
-#        skipTests: true
+deploy:
+  helm:
+    releases:
+      - name: jaeger
+        repo: https://jaegertracing.github.io/helm-charts
+        remoteChart: jaeger
+        version: 0.71.14
+        setValues:
+          provisionDataStore.cassandra: false
+          provisionDataStore.elasticsearch: false
+          provisionDataStore.kafka: false
+          allInOne.enabled: true
+          ingester.enabled: false
+          agent.enabled: false
+          collector.enabled: false
+          query.enabled: false
 
 #deploy:
 #  kubectl:
