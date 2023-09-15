@@ -1,0 +1,100 @@
+# 외부 노출을 위한 NodePort Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-port-service-nginx
+  namespace: ingress-nginx
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30007 #(default: 30000-32767)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: otel-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /app-a
+            pathType: Prefix
+            backend:
+              service:
+                name: app-a
+                port:
+                  number: 8080
+          - path: /app-b
+            pathType: Prefix
+            backend:
+              service:
+                name: app-b
+                port:
+                  number: 8080
+          - path: /app-c
+            pathType: Prefix
+            backend:
+              service:
+                name: app-c
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-a
+                port:
+                  number: 8080
+          - path: /loki
+            pathType: Prefix
+            backend:
+              service:
+                name: loki-gateway
+                port:
+                  number: 80
+---
+# https://kubernetes.github.io/ingress-nginx/examples/rewrite/#rewrite
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rewrite-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /jaeger-query(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: jaeger-query
+                port:
+                  number: 16686
+---
+# 테스트용 NodePort Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/component: all-in-one
+    app.kubernetes.io/instance: jaeger
+    app.kubernetes.io/name: jaeger
+  ports:
+    - port: 16686
+      targetPort: 16686
+      nodePort: 30009 #(default: 30000-32767)
+
+#---

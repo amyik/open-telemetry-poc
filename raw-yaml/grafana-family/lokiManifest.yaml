@@ -19,7 +19,7 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -41,7 +41,7 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -55,7 +55,7 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -86,7 +86,7 @@ data:
       split_queries_by_interval: 15m
     memberlist:
       join_members:
-        - loki-memberlist
+      - loki-memberlist
     query_range:
       align_queries_with_step: true
     ruler:
@@ -96,13 +96,13 @@ data:
       file: /etc/loki/runtime-config/runtime-config.yaml
     schema_config:
       configs:
-        - from: "2022-01-11"
-          index:
-            period: 24h
-            prefix: loki_index_
-          object_store: filesystem
-          schema: v12
-          store: boltdb-shipper
+      - from: "2022-01-11"
+        index:
+          period: 24h
+          prefix: loki_index_
+        object_store: filesystem
+        schema: v12
+        store: boltdb-shipper
     server:
       grpc_listen_port: 9095
       http_listen_port: 3100
@@ -119,14 +119,14 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 data:
-  nginx.conf: |
+  nginx.conf: |    
     worker_processes  5;  ## Default: 1
     error_log  /dev/stderr;
     pid        /tmp/nginx.pid;
@@ -160,7 +160,7 @@ data:
       sendfile     on;
       tcp_nopush   on;
       resolver kube-dns.kube-system.svc.cluster.local.;
-    
+      
     
       server {
         listen             8080;
@@ -288,7 +288,7 @@ metadata:
   name: loki-runtime
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -310,52 +310,68 @@ metadata:
     helm.sh/chart: grafana-agent-operator-0.2.16
     app.kubernetes.io/version: "0.34.1"
 rules:
-  - apiGroups: [monitoring.grafana.com]
-    resources:
-      - grafanaagents
-      - metricsinstances
-      - logsinstances
-      - podlogs
-      - integrations
-    verbs: [get, list, watch]
-  - apiGroups: [monitoring.grafana.com]
-    resources:
-      - grafanaagents/finalizers
-      - metricsinstances/finalizers
-      - logsinstances/finalizers
-      - podlogs/finalizers
-      - integrations/finalizers
-    verbs: [get, list, watch, update]
-  - apiGroups: [monitoring.coreos.com]
-    resources:
-      - podmonitors
-      - probes
-      - servicemonitors
-    verbs: [get, list, watch]
-  - apiGroups: [monitoring.coreos.com]
-    resources:
-      - podmonitors/finalizers
-      - probes/finalizers
-      - servicemonitors/finalizers
-    verbs: [get, list, watch, update]
-  - apiGroups: [""]
-    resources:
-      - namespaces
-      - nodes
-    verbs: [get, list, watch]
-  - apiGroups: [""]
-    resources:
-      - secrets
-      - services
-      - configmaps
-      - endpoints
-    verbs: [get, list, watch, create, update, patch, delete]
-  - apiGroups: ["apps"]
-    resources:
-      - statefulsets
-      - daemonsets
-      - deployments
-    verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [monitoring.grafana.com]
+  resources:
+  - grafanaagents
+  - metricsinstances
+  - logsinstances
+  - podlogs
+  - integrations
+  verbs: [get, list, watch]
+- apiGroups: [monitoring.grafana.com]
+  resources:
+  - grafanaagents/finalizers
+  - metricsinstances/finalizers
+  - logsinstances/finalizers
+  - podlogs/finalizers
+  - integrations/finalizers
+  verbs: [get, list, watch, update]
+- apiGroups: [monitoring.coreos.com]
+  resources:
+  - podmonitors
+  - probes
+  - servicemonitors
+  verbs: [get, list, watch]
+- apiGroups: [monitoring.coreos.com]
+  resources:
+  - podmonitors/finalizers
+  - probes/finalizers
+  - servicemonitors/finalizers
+  verbs: [get, list, watch, update]
+- apiGroups: [""]
+  resources:
+  - namespaces
+  - nodes
+  verbs: [get, list, watch]
+- apiGroups: [""]
+  resources:
+  - secrets
+  - services
+  - configmaps
+  - endpoints
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  - daemonsets
+  - deployments
+  verbs: [get, list, watch, create, update, patch, delete]
+---
+# Source: loki/templates/backend/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    helm.sh/chart: loki-5.20.0
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/managed-by: Helm
+  name: loki-clusterrole
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "watch", "list"]
 ---
 # Source: loki/templates/monitoring/grafana-agent.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -363,33 +379,33 @@ kind: ClusterRole
 metadata:
   name: loki-grafana-agent
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
-      - nodes/proxy
-      - nodes/metrics
-      - services
-      - endpoints
-      - pods
-      - events
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-  - nonResourceURLs:
-      - /metrics
-      - /metrics/cadvisor
-    verbs:
-      - get
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/proxy
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs:
+  - /metrics
+  - /metrics/cadvisor
+  verbs:
+  - get
 ---
 # Source: loki/charts/grafana-agent-operator/templates/operator-clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -408,9 +424,29 @@ roleRef:
   kind: ClusterRole
   name: loki-grafana-agent-operator
 subjects:
+- kind: ServiceAccount
+  name: loki-grafana-agent-operator
+  namespace: default
+---
+# Source: loki/templates/backend/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: loki-clusterrolebinding
+  labels:
+    helm.sh/chart: loki-5.20.0
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/managed-by: Helm
+subjects:
   - kind: ServiceAccount
-    name: loki-grafana-agent-operator
+    name: loki
     namespace: default
+roleRef:
+  kind: ClusterRole
+  name: loki-clusterrole
+  apiGroup: rbac.authorization.k8s.io
 ---
 # Source: loki/templates/monitoring/grafana-agent.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -422,9 +458,9 @@ roleRef:
   kind: ClusterRole
   name: loki-grafana-agent
 subjects:
-  - kind: ServiceAccount
-    name: loki-grafana-agent
-    namespace: default
+- kind: ServiceAccount
+  name: loki-grafana-agent
+  namespace: default
 ---
 # Source: loki/templates/gateway/service-gateway.yaml
 apiVersion: v1
@@ -433,7 +469,7 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -459,7 +495,7 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -485,7 +521,7 @@ metadata:
   name: loki-memberlist
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -510,7 +546,7 @@ metadata:
   name: loki-headless
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -536,7 +572,7 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -565,7 +601,7 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -609,7 +645,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-                - ALL
+              - ALL
             readOnlyRootFilesystem: true
           ports:
             - name: http-metrics
@@ -620,7 +656,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-
+            
           readinessProbe:
             httpGet:
               path: /metrics
@@ -654,11 +690,11 @@ spec:
     spec:
       serviceAccountName: loki-grafana-agent-operator
       containers:
-        - name: grafana-agent-operator
-          image: "docker.io/grafana/agent-operator:v0.34.1"
-          imagePullPolicy: IfNotPresent
-          args:
-            - --kubelet-service=default/kubelet
+      - name: grafana-agent-operator
+        image: "docker.io/grafana/agent-operator:v0.34.1"
+        imagePullPolicy: IfNotPresent
+        args:
+          - --kubelet-service=default/kubelet
 ---
 # Source: loki/templates/gateway/deployment-gateway.yaml
 apiVersion: apps/v1
@@ -667,7 +703,7 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -686,7 +722,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 06ebbaf081ebd466dfdc80b4b0e1b09361e564b4a7fe4d46efcbce340795e312
+        checksum/config: e4f11ded589006d5dedafdba7b00a756b508054ba06ff0ed02b0ceb0a7c90c26
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: loki
@@ -719,7 +755,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-                - ALL
+              - ALL
             readOnlyRootFilesystem: true
           volumeMounts:
             - name: config
@@ -739,7 +775,7 @@ spec:
                   app.kubernetes.io/instance: loki
                   app.kubernetes.io/component: gateway
               topologyKey: kubernetes.io/hostname
-
+        
       volumes:
         - name: config
           configMap:
@@ -756,7 +792,7 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -783,7 +819,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 44c045ad0a0da07ffa7e8ceed2e7cbb0ab518a485e1101a5177c5865d7be37a2
+        checksum/config: 53788ea93d9d8333d9e3ca7e865eec02e7e128705cb00f6609efa87bf59429d5
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: loki
@@ -821,7 +857,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-                - ALL
+              - ALL
             readOnlyRootFilesystem: true
           readinessProbe:
             httpGet:
@@ -849,7 +885,7 @@ spec:
                   app.kubernetes.io/instance: loki
                   app.kubernetes.io/component: single-binary
               topologyKey: kubernetes.io/hostname
-
+        
       volumes:
         - name: tmp
           emptyDir: {}
@@ -865,15 +901,15 @@ spec:
         - name: storage-tmp
           emptyDir:
             sizeLimit: 5Gi
-#  volumeClaimTemplates:
-#    - metadata:
-#        name: storage
-#      spec:
-#        accessModes:
-#          - ReadWriteOnce
-#        resources:
-#          requests:
-#            storage: "10Gi"
+  # volumeClaimTemplates:
+  #   - metadata:
+  #       name: storage
+  #     spec:
+  #       accessModes:
+  #         - ReadWriteOnce
+  #       resources:
+  #         requests:
+  #           storage: "10Gi"
 ---
 # Source: loki/templates/monitoring/grafana-agent.yaml
 apiVersion: monitoring.grafana.com/v1alpha1
@@ -881,7 +917,7 @@ kind: GrafanaAgent
 metadata:
   name: loki
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -902,7 +938,7 @@ kind: LogsInstance
 metadata:
   name: loki
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -927,7 +963,7 @@ kind: PodLogs
 metadata:
   name: loki
   labels:
-    helm.sh/chart: loki-5.18.1
+    helm.sh/chart: loki-5.20.0
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: loki
     app.kubernetes.io/version: "2.9.0"
@@ -970,144 +1006,144 @@ spec:
       app.kubernetes.io/instance: loki
 ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: grafana-agent-test-sa
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
----
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: grafana-agent-test-sa
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: grafana-agent-test-cr
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
-      - nodes/proxy
-      - nodes/metrics
-      - services
-      - endpoints
-      - pods
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-  - nonResourceURLs:
-      - /metrics
-      - /metrics/cadvisor
-    verbs:
-      - get
----
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: grafana-agent-test-cr
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# rules:
+# - apiGroups:
+#   - ""
+#   resources:
+#   - nodes
+#   - nodes/proxy
+#   - nodes/metrics
+#   - services
+#   - endpoints
+#   - pods
+#   verbs:
+#   - get
+#   - list
+#   - watch
+# - apiGroups:
+#   - networking.k8s.io
+#   resources:
+#   - ingresses
+#   verbs:
+#   - get
+#   - list
+#   - watch
+# - nonResourceURLs:
+#   - /metrics
+#   - /metrics/cadvisor
+#   verbs:
+#   - get
+# ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: grafana-agent-test-crb
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: grafana-agent-test-cr
-subjects:
-  - kind: ServiceAccount
-    name: grafana-agent-test-sa
-    namespace: default
----
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: grafana-agent-test-crb
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: grafana-agent-test-cr
+# subjects:
+# - kind: ServiceAccount
+#   name: grafana-agent-test-sa
+#   namespace: default
+# ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-#apiVersion: v1
-#kind: Pod
-#metadata:
-#  name: grafana-agent-test-probe
-#  annotations:
-#    "helm.sh/hook": test
-#    "helm.sh/hook-weight": "1"
-#    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-#spec:
-#  containers:
-#    - name: busybox
-#      image: busybox
-#      command: ['wget']
-#      args:  ['grafana-agent-test-operated:8080/-/healthy']
-#  # Wait for GrafanaAgent CR
-#  initContainers:
-#    - name: sleep
-#      image: busybox
-#      command: ['sleep', '60']
-#  restartPolicy: Never
----
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: grafana-agent-test-probe
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-weight": "1"
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# spec:
+#   containers:
+#   - name: busybox
+#     image: busybox
+#     command: ['wget']
+#     args:  ['grafana-agent-test-operated:8080/-/healthy']
+#   # Wait for GrafanaAgent CR
+#   initContainers:
+#   - name: sleep
+#     image: busybox
+#     command: ['sleep', '60']
+#   restartPolicy: Never
+# ---
 # Source: loki/templates/tests/test-canary.yaml
-#apiVersion: v1
-#kind: Pod
-#metadata:
-#  name: "loki-helm-test"
-#  namespace: default
-#  labels:
-#    helm.sh/chart: loki-5.18.1
-#    app.kubernetes.io/name: loki
-#    app.kubernetes.io/instance: loki
-#    app.kubernetes.io/version: "2.9.0"
-#    app.kubernetes.io/managed-by: Helm
-#    app.kubernetes.io/component: helm-test
-#  annotations:
-#    "helm.sh/hook": test
-#spec:
-#  containers:
-#    - name: loki-helm-test
-#      image: docker.io/grafana/loki-helm-test:latest
-#      env:
-#        - name: CANARY_PROMETHEUS_ADDRESS
-#          value: "http://prometheus:9090"
-#        - name: CANARY_TEST_TIMEOUT
-#          value: "1m"
-#      args:
-#        - -test.v
-#  restartPolicy: Never
----
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: "loki-helm-test"
+#   namespace: default
+#   labels:
+#     helm.sh/chart: loki-5.20.0
+#     app.kubernetes.io/name: loki
+#     app.kubernetes.io/instance: loki
+#     app.kubernetes.io/version: "2.9.0"
+#     app.kubernetes.io/managed-by: Helm
+#     app.kubernetes.io/component: helm-test
+#   annotations:
+#     "helm.sh/hook": test
+# spec:
+#   containers:
+#     - name: loki-helm-test
+#       image: docker.io/grafana/loki-helm-test:latest
+#       env:
+#         - name: CANARY_PROMETHEUS_ADDRESS
+#           value: "http://prometheus:9090"
+#         - name: CANARY_TEST_TIMEOUT
+#           value: "1m"
+#       args:
+#         - -test.v
+#   restartPolicy: Never
+# ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-#apiVersion: monitoring.grafana.com/v1alpha1
-#kind: GrafanaAgent
-#metadata:
-#  name: grafana-agent-test
-#  labels:
-#    app: grafana-agent-test
-#  annotations:
-#    "helm.sh/hook": test
-#    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-#spec:
-#  image: "docker.io/grafana/agent:v0.34.1"
-#  logLevel: info
-#  serviceAccountName: grafana-agent-test-sa
-#  metrics:
-#    instanceSelector:
-#      matchLabels:
-#        agent: grafana-agent-test
----
+# apiVersion: monitoring.grafana.com/v1alpha1
+# kind: GrafanaAgent
+# metadata:
+#   name: grafana-agent-test
+#   labels:
+#     app: grafana-agent-test
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# spec:
+#   image: "docker.io/grafana/agent:v0.34.1"
+#   logLevel: info
+#   serviceAccountName: grafana-agent-test-sa
+#   metrics:
+#     instanceSelector:
+#       matchLabels:
+#         agent: grafana-agent-test
+# ---
 # Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: MetricsInstance
-metadata:
-  name: primary-test
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-  labels:
-    agent: grafana-agent-test
-spec: {}
+# apiVersion: monitoring.grafana.com/v1alpha1
+# kind: MetricsInstance
+# metadata:
+#   name: primary-test
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+#   labels:
+#     agent: grafana-agent-test
+# spec: {}
