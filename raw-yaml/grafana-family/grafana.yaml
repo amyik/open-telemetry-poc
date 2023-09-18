@@ -23,6 +23,10 @@ data:
         type: loki
         access: proxy
         url: http://loki:3100
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo-query-frontend.tempo:3100
 ---
 apiVersion: apps/v1
 kind: Deployment

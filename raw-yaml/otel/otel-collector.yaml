@@ -42,12 +42,12 @@ data:
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging]
-        traces/jaeger:
-          receivers: [otlp]
-          processors: []
-          exporters: [logging, otlp/jaeger]
-    #        exporters: [logging, loki]
+          exporters: [logging, loki]
+#        traces/jaeger:
+#          receivers: [otlp]
+#          processors: []
+#          exporters: [logging, otlp/jaeger]
+#        exporters: [logging, loki]
 #        traces/1:
 #          receivers: [otlp]
 #          processors: [memory_limiter, batch]
