@@ -1,4 +1,240 @@
+# Source: loki/templates/monitoring/grafana-agent.yaml
+apiVersion: monitoring.grafana.com/v1alpha1
+kind: GrafanaAgent
+metadata:
+  name: loki
+  labels:
+    helm.sh/chart: loki-5.20.0
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceAccountName: loki-grafana-agent
+  enableConfigReadAPI: false
+
+  logs:
+    instanceSelector:
+      matchLabels:
+        app.kubernetes.io/name: loki
+        app.kubernetes.io/instance: loki
 ---
+# Source: loki/templates/monitoring/logs-instance.yaml
+apiVersion: monitoring.grafana.com/v1alpha1
+kind: LogsInstance
+metadata:
+  name: loki
+  labels:
+    helm.sh/chart: loki-5.20.0
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  clients:
+    - url: http://loki.default.svc.cluster.local:3100/loki/api/v1/push
+      externalLabels:
+        cluster: loki
+      tenantId: "self-monitoring"
+
+  podLogsNamespaceSelector: {}
+
+  podLogsSelector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: loki
+---
+# Source: loki/templates/monitoring/pod-logs.yaml
+apiVersion: monitoring.grafana.com/v1alpha1
+kind: PodLogs
+metadata:
+  name: loki
+  labels:
+    helm.sh/chart: loki-5.20.0
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  pipelineStages:
+    - cri: { }
+  relabelings:
+    - sourceLabels:
+        - __meta_kubernetes_pod_node_name
+      targetLabel: __host__
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+    - action: replace
+      replacement: "$1"
+      separator: "-"
+      sourceLabels:
+        - __meta_kubernetes_pod_label_app_kubernetes_io_name
+        - __meta_kubernetes_pod_label_app_kubernetes_io_component
+      targetLabel: __service__
+    - action: replace
+      replacement: "$1"
+      separator: "/"
+      sourceLabels:
+        - __meta_kubernetes_namespace
+        - __service__
+      targetLabel: job
+    - action: replace
+      sourceLabels:
+        - __meta_kubernetes_pod_container_name
+      targetLabel: container
+    - replacement: "loki"
+      targetLabel: cluster
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/instance: loki
+---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: grafana-agent-test-sa
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# ---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: grafana-agent-test-cr
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# rules:
+# - apiGroups:
+#   - ""
+#   resources:
+#   - nodes
+#   - nodes/proxy
+#   - nodes/metrics
+#   - services
+#   - endpoints
+#   - pods
+#   verbs:
+#   - get
+#   - list
+#   - watch
+# - apiGroups:
+#   - networking.k8s.io
+#   resources:
+#   - ingresses
+#   verbs:
+#   - get
+#   - list
+#   - watch
+# - nonResourceURLs:
+#   - /metrics
+#   - /metrics/cadvisor
+#   verbs:
+#   - get
+# ---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: grafana-agent-test-crb
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: grafana-agent-test-cr
+# subjects:
+# - kind: ServiceAccount
+#   name: grafana-agent-test-sa
+#   namespace: default
+# ---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: grafana-agent-test-probe
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-weight": "1"
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# spec:
+#   containers:
+#   - name: busybox
+#     image: busybox
+#     command: ['wget']
+#     args:  ['grafana-agent-test-operated:8080/-/healthy']
+#   # Wait for GrafanaAgent CR
+#   initContainers:
+#   - name: sleep
+#     image: busybox
+#     command: ['sleep', '60']
+#   restartPolicy: Never
+# ---
+# Source: loki/templates/tests/test-canary.yaml
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: "loki-helm-test"
+#   namespace: default
+#   labels:
+#     helm.sh/chart: loki-5.20.0
+#     app.kubernetes.io/name: loki
+#     app.kubernetes.io/instance: loki
+#     app.kubernetes.io/version: "2.9.0"
+#     app.kubernetes.io/managed-by: Helm
+#     app.kubernetes.io/component: helm-test
+#   annotations:
+#     "helm.sh/hook": test
+# spec:
+#   containers:
+#     - name: loki-helm-test
+#       image: docker.io/grafana/loki-helm-test:latest
+#       env:
+#         - name: CANARY_PROMETHEUS_ADDRESS
+#           value: "http://prometheus:9090"
+#         - name: CANARY_TEST_TIMEOUT
+#           value: "1m"
+#       args:
+#         - -test.v
+#   restartPolicy: Never
+# ---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: monitoring.grafana.com/v1alpha1
+# kind: GrafanaAgent
+# metadata:
+#   name: grafana-agent-test
+#   labels:
+#     app: grafana-agent-test
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+# spec:
+#   image: "docker.io/grafana/agent:v0.34.1"
+#   logLevel: info
+#   serviceAccountName: grafana-agent-test-sa
+#   metrics:
+#     instanceSelector:
+#       matchLabels:
+#         agent: grafana-agent-test
+# ---
+# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
+# apiVersion: monitoring.grafana.com/v1alpha1
+# kind: MetricsInstance
+# metadata:
+#   name: primary-test
+#   annotations:
+#     "helm.sh/hook": test
+#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+#   labels:
+#     agent: grafana-agent-test
+# spec: {}
+
 # Source: loki/charts/grafana-agent-operator/templates/operator-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -595,75 +831,75 @@ spec:
     app.kubernetes.io/component: single-binary
 ---
 # Source: loki/templates/loki-canary/daemonset.yaml
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: loki-canary
-  namespace: default
-  labels:
-    helm.sh/chart: loki-5.20.0
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: loki
-    app.kubernetes.io/version: "2.9.0"
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: canary
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: loki
-      app.kubernetes.io/instance: loki
-      app.kubernetes.io/component: canary
-  updateStrategy:
-    rollingUpdate:
-      maxUnavailable: 1
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: loki
-        app.kubernetes.io/instance: loki
-        app.kubernetes.io/component: canary
-    spec:
-      serviceAccountName: loki-canary
-      
-      securityContext:
-        fsGroup: 10001
-        runAsGroup: 10001
-        runAsNonRoot: true
-        runAsUser: 10001
-      containers:
-        - name: loki-canary
-          image: docker.io/grafana/loki-canary:2.9.0
-          imagePullPolicy: IfNotPresent
-          args:
-            - -addr=loki-gateway.default.svc.cluster.local.:80
-            - -labelname=pod
-            - -labelvalue=$(POD_NAME)
-            - -user=self-monitoring
-            - -tenant-id=self-monitoring
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            readOnlyRootFilesystem: true
-          ports:
-            - name: http-metrics
-              containerPort: 3500
-              protocol: TCP
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: http-metrics
-            initialDelaySeconds: 15
-            timeoutSeconds: 1
----
+#apiVersion: apps/v1
+#kind: DaemonSet
+#metadata:
+#  name: loki-canary
+#  namespace: default
+#  labels:
+#    helm.sh/chart: loki-5.20.0
+#    app.kubernetes.io/name: loki
+#    app.kubernetes.io/instance: loki
+#    app.kubernetes.io/version: "2.9.0"
+#    app.kubernetes.io/managed-by: Helm
+#    app.kubernetes.io/component: canary
+#spec:
+#  selector:
+#    matchLabels:
+#      app.kubernetes.io/name: loki
+#      app.kubernetes.io/instance: loki
+#      app.kubernetes.io/component: canary
+#  updateStrategy:
+#    rollingUpdate:
+#      maxUnavailable: 1
+#    type: RollingUpdate
+#  template:
+#    metadata:
+#      labels:
+#        app.kubernetes.io/name: loki
+#        app.kubernetes.io/instance: loki
+#        app.kubernetes.io/component: canary
+#    spec:
+#      serviceAccountName: loki-canary
+#
+#      securityContext:
+#        fsGroup: 10001
+#        runAsGroup: 10001
+#        runAsNonRoot: true
+#        runAsUser: 10001
+#      containers:
+#        - name: loki-canary
+#          image: docker.io/grafana/loki-canary:2.9.0
+#          imagePullPolicy: IfNotPresent
+#          args:
+#            - -addr=loki-gateway.default.svc.cluster.local.:80
+#            - -labelname=pod
+#            - -labelvalue=$(POD_NAME)
+#            - -user=self-monitoring
+#            - -tenant-id=self-monitoring
+#          securityContext:
+#            allowPrivilegeEscalation: false
+#            capabilities:
+#              drop:
+#              - ALL
+#            readOnlyRootFilesystem: true
+#          ports:
+#            - name: http-metrics
+#              containerPort: 3500
+#              protocol: TCP
+#          env:
+#            - name: POD_NAME
+#              valueFrom:
+#                fieldRef:
+#                  fieldPath: metadata.name
+#
+#          readinessProbe:
+#            httpGet:
+#              path: /metrics
+#              port: http-metrics
+#            initialDelaySeconds: 15
+#            timeoutSeconds: 1
+#---
 # Source: loki/charts/grafana-agent-operator/templates/operator-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -911,239 +1147,4 @@ spec:
   #         requests:
   #           storage: "10Gi"
 ---
-# Source: loki/templates/monitoring/grafana-agent.yaml
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: GrafanaAgent
-metadata:
-  name: loki
-  labels:
-    helm.sh/chart: loki-5.20.0
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: loki
-    app.kubernetes.io/version: "2.9.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  serviceAccountName: loki-grafana-agent
-  enableConfigReadAPI: false
-  
-  logs:
-    instanceSelector:
-      matchLabels:
-        app.kubernetes.io/name: loki
-        app.kubernetes.io/instance: loki
----
-# Source: loki/templates/monitoring/logs-instance.yaml
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: LogsInstance
-metadata:
-  name: loki
-  labels:
-    helm.sh/chart: loki-5.20.0
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: loki
-    app.kubernetes.io/version: "2.9.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  clients:
-    - url: http://loki.default.svc.cluster.local:3100/loki/api/v1/push
-      externalLabels:
-        cluster: loki
-      tenantId: "self-monitoring"
 
-  podLogsNamespaceSelector: {}
-
-  podLogsSelector:
-    matchLabels:
-      app.kubernetes.io/name: loki
-      app.kubernetes.io/instance: loki
----
-# Source: loki/templates/monitoring/pod-logs.yaml
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: PodLogs
-metadata:
-  name: loki
-  labels:
-    helm.sh/chart: loki-5.20.0
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: loki
-    app.kubernetes.io/version: "2.9.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  pipelineStages:
-    - cri: { }
-  relabelings:
-    - sourceLabels:
-        - __meta_kubernetes_pod_node_name
-      targetLabel: __host__
-    - action: labelmap
-      regex: __meta_kubernetes_pod_label_(.+)
-    - action: replace
-      replacement: "$1"
-      separator: "-"
-      sourceLabels:
-        - __meta_kubernetes_pod_label_app_kubernetes_io_name
-        - __meta_kubernetes_pod_label_app_kubernetes_io_component
-      targetLabel: __service__
-    - action: replace
-      replacement: "$1"
-      separator: "/"
-      sourceLabels:
-        - __meta_kubernetes_namespace
-        - __service__
-      targetLabel: job
-    - action: replace
-      sourceLabels:
-        - __meta_kubernetes_pod_container_name
-      targetLabel: container
-    - replacement: "loki"
-      targetLabel: cluster
-  namespaceSelector:
-    matchNames:
-      - default
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: loki
-      app.kubernetes.io/instance: loki
----
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: grafana-agent-test-sa
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-# ---
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRole
-# metadata:
-#   name: grafana-agent-test-cr
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-# rules:
-# - apiGroups:
-#   - ""
-#   resources:
-#   - nodes
-#   - nodes/proxy
-#   - nodes/metrics
-#   - services
-#   - endpoints
-#   - pods
-#   verbs:
-#   - get
-#   - list
-#   - watch
-# - apiGroups:
-#   - networking.k8s.io
-#   resources:
-#   - ingresses
-#   verbs:
-#   - get
-#   - list
-#   - watch
-# - nonResourceURLs:
-#   - /metrics
-#   - /metrics/cadvisor
-#   verbs:
-#   - get
-# ---
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: rbac.authorization.k8s.io/v1
-# kind: ClusterRoleBinding
-# metadata:
-#   name: grafana-agent-test-crb
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-# roleRef:
-#   apiGroup: rbac.authorization.k8s.io
-#   kind: ClusterRole
-#   name: grafana-agent-test-cr
-# subjects:
-# - kind: ServiceAccount
-#   name: grafana-agent-test-sa
-#   namespace: default
-# ---
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: v1
-# kind: Pod
-# metadata:
-#   name: grafana-agent-test-probe
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-weight": "1"
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-# spec:
-#   containers:
-#   - name: busybox
-#     image: busybox
-#     command: ['wget']
-#     args:  ['grafana-agent-test-operated:8080/-/healthy']
-#   # Wait for GrafanaAgent CR
-#   initContainers:
-#   - name: sleep
-#     image: busybox
-#     command: ['sleep', '60']
-#   restartPolicy: Never
-# ---
-# Source: loki/templates/tests/test-canary.yaml
-# apiVersion: v1
-# kind: Pod
-# metadata:
-#   name: "loki-helm-test"
-#   namespace: default
-#   labels:
-#     helm.sh/chart: loki-5.20.0
-#     app.kubernetes.io/name: loki
-#     app.kubernetes.io/instance: loki
-#     app.kubernetes.io/version: "2.9.0"
-#     app.kubernetes.io/managed-by: Helm
-#     app.kubernetes.io/component: helm-test
-#   annotations:
-#     "helm.sh/hook": test
-# spec:
-#   containers:
-#     - name: loki-helm-test
-#       image: docker.io/grafana/loki-helm-test:latest
-#       env:
-#         - name: CANARY_PROMETHEUS_ADDRESS
-#           value: "http://prometheus:9090"
-#         - name: CANARY_TEST_TIMEOUT
-#           value: "1m"
-#       args:
-#         - -test.v
-#   restartPolicy: Never
-# ---
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: monitoring.grafana.com/v1alpha1
-# kind: GrafanaAgent
-# metadata:
-#   name: grafana-agent-test
-#   labels:
-#     app: grafana-agent-test
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-# spec:
-#   image: "docker.io/grafana/agent:v0.34.1"
-#   logLevel: info
-#   serviceAccountName: grafana-agent-test-sa
-#   metrics:
-#     instanceSelector:
-#       matchLabels:
-#         agent: grafana-agent-test
-# ---
-# Source: loki/charts/grafana-agent-operator/templates/tests/test-grafanaagent.yaml
-# apiVersion: monitoring.grafana.com/v1alpha1
-# kind: MetricsInstance
-# metadata:
-#   name: primary-test
-#   annotations:
-#     "helm.sh/hook": test
-#     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-#   labels:
-#     agent: grafana-agent-test
-# spec: {}

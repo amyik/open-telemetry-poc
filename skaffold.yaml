@@ -20,9 +20,8 @@ build:
 manifests:
   rawYaml:
     - raw-yaml/ingress/*.yaml
-#    - raw-yaml/jaeger/jaeger-operator.yaml
-#    - raw-yaml/jaeger/jaeger.yaml
-    - raw-yaml/grafana-family/*
+    - raw-yaml/grafana-family/grafana.yaml
+    - raw-yaml/grafana-family/lokiManifest.yaml
     - raw-yaml/otel/*
     - raw-yaml/demo-apps/*.yaml
 
@@ -46,7 +45,19 @@ deploy:
         repo: https://grafana.github.io/helm-charts
         remoteChart: tempo-distributed
         namespace: tempo
+        version: 1.6.1
         createNamespace: true
+        setValues:
+          traces.otlp.grpc.enabled: true
+#      - name: loki
+#        repo: https://grafana.github.io/helm-charts
+#        remoteChart: loki
+#        setValues:
+#          minio.enabled: true
+#          loki.commonConfig.replication_factor: 1
+#          singleBinary.replicas: 1
+
+# helm install --values ./helmValuesFiles/lokiValues-minio.yaml loki grafana/loki
 
 
 #helm -n tempo-test install tempo grafana/tempo-distributed -f custom.yaml

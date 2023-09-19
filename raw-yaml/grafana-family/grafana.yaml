@@ -21,12 +21,38 @@ data:
     datasources:
       - name: Loki
         type: loki
+        uid: loki_uid
         access: proxy
         url: http://loki:3100
+        editable: true
+        jsonData:
+          maxLines: 1000
+          derivedFields:
+            - datasourceUid: tempo_uid
+              matcherRegex: "\"traceid\":\"(\\w{32})\""
+              name: TraceID
+              url: '$${__value.raw}'
+    #          url: 'http://tempo-query-frontend.tempo:3100/api/traces/$${__value.raw}'
+              urlDisplayLabel: 'View Trace'
       - name: Tempo
         type: tempo
+        uid: tempo_uid
         access: proxy
         url: http://tempo-query-frontend.tempo:3100
+        editable: true
+        jsonData:
+          tracesToLogsV2:
+          # Field with an internal link pointing to a logs data source in Grafana.
+          # datasourceUid value must match the uid value of the logs data source.
+            datasourceUid: loki_uid
+            spanStartTimeShift: '-20m'
+            spanEndTimeShift: '20m'
+      #      tags: ['job', 'instance', 'pod', 'namespace']
+            filterByTraceID: false
+            filterBySpanID: false
+            customQuery: true
+            query: '{exporter="OTLP"} | json | traceid="$${__span.traceId}" | spanid="$${__span.spanId}" | line_format "{{.body}}"'
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -49,7 +75,7 @@ spec:
           - 0
       containers:
         - name: grafana
-          image: grafana/grafana:latest
+          image: grafana/grafana:10.1.2
           imagePullPolicy: IfNotPresent
           env:
             - name: GF_AUTH_DISABLE_LOGIN_FORM
