@@ -62,6 +62,7 @@ public class HelloController {
         .post(requestBody)
         .build();
 
+    log.info("{} : I will call app-b", serviceName);
     try (Response response = client.newCall(request).execute()) {
       // 응답 처리 로직 작성
       String responseBody = response.body().string();
@@ -70,6 +71,8 @@ public class HelloController {
       // 예외 처리 로직 작성
       e.printStackTrace();
     }
+    log.info("{} : I received a response from app-b", serviceName);
+    log.warn("{} : Warning log, no reason", serviceName);
     return "I am " + serviceName + ": api works.";
   }
 
