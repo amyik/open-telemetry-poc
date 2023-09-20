@@ -1,21 +1,21 @@
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: http-requester
-#  labels:
-#    app: http-requester
-#spec:
-#  replicas: 1
-#  selector:
-#    matchLabels:
-#      app: http-requester
-#  template:
-#    metadata:
-#      labels:
-#        app: http-requester
-#    spec:
-#      containers:
-#        - name: ab-container
-#          image: jordi/ab
-#          command: ["/bin/sh"]
-#          args: ["-c", "ab -c 1 -n 1 http://app-a:8080/app-a/call-b-c-post"]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-requester
+  labels:
+    app: http-requester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: http-requester
+  template:
+    metadata:
+      labels:
+        app: http-requester
+    spec:
+      containers:
+        - name: ab-container
+          image: jordi/ab
+          command: ["/bin/sh"]
+          args: ["-c", "while true; do sleep 10; ab -c 1 -n 1 http://app-a:8080/app-a/call-b-c-post | echo 0; done"]

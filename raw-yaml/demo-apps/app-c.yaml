@@ -62,8 +62,8 @@ spec:
           value: application
         resources:
           requests:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 600m
+            memory: 600Mi
           limits:
-            cpu: 400m
-            memory: 400Mi
+            cpu: 600m
+            memory: 600Mi
