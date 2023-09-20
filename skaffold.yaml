@@ -20,35 +20,50 @@ build:
 manifests:
   rawYaml:
     - raw-yaml/ingress/*.yaml
-    - raw-yaml/grafana-family/grafana.yaml
-    - raw-yaml/grafana-family/lokiManifest.yaml
-    - raw-yaml/otel/*
-    - raw-yaml/demo-apps/*.yaml
+#    - raw-yaml/grafana-family/grafana.yaml
+#    - raw-yaml/grafana-family/lokiManifest.yaml
+#    - raw-yaml/otel/*
+#    - raw-yaml/demo-apps/*.yaml
+    - raw-yaml/elastic/elastic-search.yaml
+    - raw-yaml/elastic/kibana.yaml
 
 deploy:
   helm:
     releases:
-      - name: jaeger
-        repo: https://jaegertracing.github.io/helm-charts
-        remoteChart: jaeger
-        version: 0.71.14
-        setValues:
-          provisionDataStore.cassandra: false
-          provisionDataStore.elasticsearch: false
-          provisionDataStore.kafka: false
-          allInOne.enabled: true
-          ingester.enabled: false
-          agent.enabled: false
-          collector.enabled: false
-          query.enabled: false
-      - name: tempo
-        repo: https://grafana.github.io/helm-charts
-        remoteChart: tempo-distributed
-        namespace: tempo
-        version: 1.6.1
-        createNamespace: true
-        setValues:
-          traces.otlp.grpc.enabled: true
+#      - name: jaeger
+#        repo: https://jaegertracing.github.io/helm-charts
+#        remoteChart: jaeger
+#        version: 0.71.14
+#        setValues:
+#          provisionDataStore.cassandra: false
+#          provisionDataStore.elasticsearch: false
+#          provisionDataStore.kafka: false
+#          allInOne.enabled: true
+#          ingester.enabled: false
+#          agent.enabled: false
+#          collector.enabled: false
+#          query.enabled: false
+#      - name: tempo
+#        repo: https://grafana.github.io/helm-charts
+#        remoteChart: tempo-distributed
+#        namespace: tempo
+#        version: 1.6.1
+#        createNamespace: true
+#        setValues:
+#          traces.otlp.grpc.enabled: true
+#      - name: elasticsearch
+#        repo: https://helm.elastic.co
+#        remoteChart: elasticsearch
+#        version: 8.5.1
+#        valuesFiles:
+#          - "./helmValuesFiles/elasticSearchValues.yaml"
+#      - name: kibana
+#        repo: https://helm.elastic.co
+#        remoteChart: kibana
+#        version: 8.5.1
+#        valuesFiles:
+#          - "./helmValuesFiles/kibanaValues.yaml"
+
 #      - name: loki
 #        repo: https://grafana.github.io/helm-charts
 #        remoteChart: loki

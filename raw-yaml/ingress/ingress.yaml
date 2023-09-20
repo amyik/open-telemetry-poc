@@ -97,4 +97,17 @@ spec:
       targetPort: 16686
       nodePort: 30009 #(default: 30000-32767)
 
-#---
+---
+# 테스트용 NodePort Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: kibana
+  ports:
+    - port: 5601
+      targetPort: 5601
+      nodePort: 30010 #(default: 30000-32767)

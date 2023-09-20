@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elastic-search
+  labels:
+    app: elastic-search
+spec:
+  type: ClusterIP
+  selector:
+    app: elastic-search
+  ports:
+  - protocol: TCP
+    port: 9200
+    targetPort: 9200
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elastic-search
+  labels:
+    app: elastic-search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elastic-search
+  template:
+    metadata:
+      labels:
+        app: elastic-search
+    spec:
+      containers:
+      - name: elastic-search
+        image: elasticsearch:8.10.1
+        ports:
+        - containerPort: 9200
+        env: []
+        resources:
+          requests:
+            cpu: 600m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
