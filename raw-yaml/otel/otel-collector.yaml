@@ -31,6 +31,22 @@ data:
         endpoint: "http://tempo-distributor.tempo:4317"
         tls:
           insecure: true
+      elasticsearch/trace:
+        endpoints: [http://elasticsearch:9200]
+        tls:
+          insecure: true
+        traces_index: trace_index
+        flush:
+          bytes: 5242880
+          interval: 5
+      elasticsearch/log:    
+        endpoints: [http://elasticsearch:9200]
+        tls:
+          insecure: true
+        logs_index: log_index
+        flush:
+          bytes: 5242880
+          interval: 5
       file:
         path: ./test.log
       logging:
@@ -47,11 +63,11 @@ data:
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, loki]
+          exporters: [logging, loki, elasticsearch/log]
         traces:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlp/tempo, otlp/jaeger]
+          exporters: [logging, otlp/tempo, otlp/jaeger, elasticsearch/trace]
 ---
 apiVersion: v1
 kind: Service
