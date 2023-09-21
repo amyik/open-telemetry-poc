@@ -1,0 +1,10 @@
+1. token 생성 (elasticsearch)
+ $/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
+
+ 2. kibana 코드 확인
+ 방법1: $kubectl exec -it kibana-deployment-68d88b75f4-m44bg -- /usr/share/kibana/bin/kibana-verification-code
+ 방법2: kibana 로그 조회
+
+ 3. Enrollment token
+ 방법1: $kubectl exec -it elasticsearch-deployment-649dd89d45-sjvgv --  /usr/share/elasticsearch/bin/elasticsearch-users useradd bluesky -p bluesky -r superuser
+ 방법2: elasticsearch의 exec에서 $/usr/share/elasticsearch/bin/elasticsearch-users useradd bluesky -p bluesky -r superuser
