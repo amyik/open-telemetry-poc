@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: elastic-search
+  name: elasticsearch
   labels:
-    app: elastic-search
+    app: elasticsearch
 spec:
   type: ClusterIP
   selector:
-    app: elastic-search
+    app: elasticsearch
   ports:
   - protocol: TCP
     port: 9200
@@ -17,25 +17,29 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: elastic-search
+  name: elasticsearch
   labels:
-    app: elastic-search
+    app: elasticsearch
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: elastic-search
+      app: elasticsearch
   template:
     metadata:
       labels:
-        app: elastic-search
+        app: elasticsearch
     spec:
       containers:
-      - name: elastic-search
+      - name: elasticsearch
         image: elasticsearch:8.10.1
         ports:
         - containerPort: 9200
-        env: []
+        env:
+          - name: discovery.type
+            value: "single-node"
+          - name: xpack.security.enabled
+            value: "false"
         resources:
           requests:
             cpu: 600m
