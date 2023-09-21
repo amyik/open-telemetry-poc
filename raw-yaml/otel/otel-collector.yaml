@@ -31,6 +31,10 @@ data:
         endpoint: "http://tempo-distributor.tempo:4317"
         tls:
           insecure: true
+      otlp/elastic:
+        endpoint: "http://elasticsearch:9200"
+        tls:
+          insecure: true
       elasticsearch/trace:
         endpoints: [http://elasticsearch:9200]
         tls:
@@ -63,11 +67,11 @@ data:
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, loki, elasticsearch/log]
+          exporters: [logging, loki, otlp/elastic]
         traces:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlp/tempo, otlp/jaeger, elasticsearch/trace]
+          exporters: [logging, otlp/tempo, otlp/jaeger, otlp/elastic]
 ---
 apiVersion: v1
 kind: Service
