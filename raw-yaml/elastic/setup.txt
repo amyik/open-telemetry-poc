@@ -7,4 +7,4 @@
 
  3. Enrollment token
  방법1: $kubectl exec -it elasticsearch-deployment-649dd89d45-sjvgv --  /usr/share/elasticsearch/bin/elasticsearch-users useradd bluesky -p bluesky -r superuser
- 방법2: elasticsearch의 exec에서 $/usr/share/elasticsearch/bin/elasticsearch-users useradd bluesky -p bluesky -r superuser
+ 방법2: elasticsearch의 exec에서 $/usr/share/elasticsearch/bin/elasticsearch-users useradd devops -p devops -r superuser

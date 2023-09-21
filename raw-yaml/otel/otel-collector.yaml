@@ -42,16 +42,26 @@ data:
           job: true
           instance: true
           level: true
+      elasticsearch/trace:
+        endpoints: [http://elasticsearch:9200]
+        traces_index: trace_index
+      elasticsearch/log:
+        endpoints: [http://elasticsearch:9200]
+        logs_index: my_log_index
+        sending_queue:
+          enabled: true
+          num_consumers: 20
+          queue_size: 1000
     service:
       pipelines:
         logs:
           receivers: [otlp]
-          processors: [resource]
-          exporters: [logging, loki]
+          processors: [resource, batch]
+          exporters: [logging, loki, elasticsearch/log]
         traces:
           receivers: [otlp]
-          processors: [resource]
-          exporters: [logging, otlp/tempo, otlp/jaeger]
+          processors: [resource, batch]
+          exporters: [logging, otlp/tempo, otlp/jaeger, elasticsearch/trace]
 ---
 apiVersion: v1
 kind: Service
