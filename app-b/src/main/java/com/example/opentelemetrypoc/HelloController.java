@@ -1,5 +1,6 @@
 package com.example.opentelemetrypoc;
 
+import io.opentelemetry.api.trace.Span;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +65,8 @@ public class HelloController {
       e.printStackTrace();
     }
     log.info("{} : I received a response from app-c", serviceName);
+    log.warn("Span.current().getSpanContext().getTraceId():{}", Span.current().getSpanContext().getTraceId());
+    log.warn("Span.current().getSpanContext().getSpanId():{}", Span.current().getSpanContext().getSpanId());
     return "I am " + serviceName + ": api works.";
   }
 
