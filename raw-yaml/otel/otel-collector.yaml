@@ -31,8 +31,28 @@ data:
         endpoint: "http://tempo-distributor.tempo:4317"
         tls:
           insecure: true
+      otlp/elastic:
+        endpoint: "http://elasticsearch:9200"
+        tls:
+          insecure: true
+      elasticsearch/trace:
+        endpoints: [http://elasticsearch:9200]
+        tls:
+          insecure: true
+        traces_index: trace_index
+        flush:
+          bytes: 5242880
+          interval: 5
+      elasticsearch/log:    
+        endpoints: [http://elasticsearch:9200]
+        tls:
+          insecure: true
+        logs_index: log_index
+        flush:
+          bytes: 5242880
+          interval: 5
       file:
-        path: ./test.log
+        path: /filelog/file-exporter-path
       logging:
         verbosity: detailed
       loki:
@@ -47,7 +67,7 @@ data:
         logs:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, loki]
+          exporters: [logging, loki, file]
         traces:
           receivers: [otlp]
           processors: [resource]
@@ -117,6 +137,9 @@ spec:
               name: data
               subPath: config.yaml
               readOnly: true
+            - mountPath: /filelog
+              name: filelog
+              readOnly: false
           ports:
             - containerPort: 55679 # Default endpoint for ZPages.
             - containerPort: 4317 # Default endpoint for OpenTelemetry receiver.
@@ -141,4 +164,9 @@ spec:
         - name: data
           configMap:
             name: otel-collector-config
+        - name: filelog
+#          hostPath:
+#            path: /filelog
+#            type: DirectoryOrCreate
+          emptyDir: {}
 

@@ -4,3 +4,7 @@ spring:
 
 server:
   port: 9093
+
+logging:
+  file:
+    name: /usr/local/tomcat/logs/spring.log
