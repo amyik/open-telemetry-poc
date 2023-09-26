@@ -71,7 +71,7 @@ data:
         traces:
           receivers: [otlp]
           processors: [resource]
-          exporters: [logging, otlp/tempo, otlp/jaeger, otlp/elastic]
+          exporters: [logging, otlp/tempo, otlp/jaeger]
 ---
 apiVersion: v1
 kind: Service
