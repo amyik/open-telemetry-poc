@@ -69,3 +69,9 @@ config:
 
 serviceAccount:
   create: false
+
+resources:
+  limits:
+    # CPU units are in fractions of 1000; memory in powers of 2
+    cpu: 500m
+    memory: 512Mi
