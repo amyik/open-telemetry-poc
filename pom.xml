@@ -45,14 +45,15 @@
                         <container>
                             <appRoot>/usr/local/tomcat/webapps/ROOT</appRoot>
                         </container>
-                        <extraDirectories>
-                            <paths>
-                                <path>
-                                    <from>lib</from>
-                                    <into>/usr/local/tomcat/lib</into>
-                                </path>
-                            </paths>
-                        </extraDirectories>
+<!--                        java-agent를 war파일에 포함되도록 변경함-->
+<!--                        <extraDirectories>-->
+<!--                            <paths>-->
+<!--                                <path>-->
+<!--                                    <from>lib</from>-->
+<!--                                    <into>/usr/local/tomcat/lib</into>-->
+<!--                                </path>-->
+<!--                            </paths>-->
+<!--                        </extraDirectories>-->
                     </configuration>
                 </plugin>
             </plugins>

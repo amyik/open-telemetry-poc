@@ -24,8 +24,8 @@ manifests:
     - raw-yaml/grafana-family/lokiManifest.yaml
     - raw-yaml/otel/*
     - raw-yaml/demo-apps/*.yaml
-    - raw-yaml/elastic/elasticsearch.yaml
-    - raw-yaml/elastic/kibana.yaml
+#    - raw-yaml/elastic/elasticsearch.yaml
+#    - raw-yaml/elastic/kibana.yaml
 
 deploy:
   helm:
