@@ -1,0 +1,71 @@
+fullnameOverride: "otel-collector"
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+  processors:
+    resource:
+      attributes:
+        - action: insert
+          key: loki.resource.labels
+          value: service.name
+    batch: {}
+  exporters:
+    otlp/jaeger:
+      endpoint: "http://jaeger-collector:4317"
+      tls:
+        insecure: true
+    otlp/tempo:
+      endpoint: "http://tempo-distributor.tempo:4317"
+      tls:
+        insecure: true
+    otlp/elastic:
+      endpoint: "http://elasticsearch:9200"
+      tls:
+        insecure: true
+    elasticsearch/trace:
+      endpoints: [ http://elasticsearch:9200 ]
+      tls:
+        insecure: true
+      traces_index: trace_index
+      flush:
+        bytes: 5242880
+        interval: 5
+    elasticsearch/log:
+      endpoints: [ http://elasticsearch:9200 ]
+      tls:
+        insecure: true
+      logs_index: log_index
+      flush:
+        bytes: 5242880
+        interval: 5
+#    file:
+#      path: /filelog/file-exporter-path
+    logging:
+      verbosity: detailed
+    loki:
+      endpoint: http://loki-gateway:80/loki/api/v1/push
+      default_labels_enabled:
+        exporter: true
+        job: true
+        instance: true
+        level: true
+  service:
+    pipelines:
+      logs:
+        receivers: [ otlp ]
+        processors: [ resource ]
+        exporters: [ logging, loki ]
+      traces:
+        receivers: [ otlp ]
+        processors: [ resource ]
+        exporters: [ logging, otlp/tempo, otlp/jaeger ]
+
+serviceAccount:
+  create: false

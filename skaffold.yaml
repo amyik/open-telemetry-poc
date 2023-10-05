@@ -22,7 +22,7 @@ manifests:
     - raw-yaml/ingress/*.yaml
     - raw-yaml/grafana-family/grafana.yaml
     - raw-yaml/grafana-family/lokiManifest.yaml
-    - raw-yaml/otel/*
+#    - raw-yaml/otel/*
     - raw-yaml/demo-apps/*.yaml
 #    - raw-yaml/elastic/elasticsearch.yaml
 #    - raw-yaml/elastic/kibana.yaml
@@ -30,6 +30,11 @@ manifests:
 deploy:
   helm:
     releases:
+      - name: otel-collector
+        repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+        remoteChart: opentelemetry-collector
+        version: 0.69.2
+        valuesFiles: [ helmValuesFiles/otelCollectorValues.yaml ]
       - name: jaeger
         repo: https://jaegertracing.github.io/helm-charts
         remoteChart: jaeger
